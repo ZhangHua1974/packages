@@ -88,6 +88,8 @@ CONFIGURE_ARGS:= \
 	--with-intl=$(if $(CONFIG_NODEJS_ICU),system-icu,none) \
 	$(if $(findstring mips,$(NODEJS_CPU)), \
 		$(if $(CONFIG_SOFT_FLOAT),--with-mips-float-abi=soft)) \
+	$(if $(findstring mips,$(NODEJS_CPU)), \
+		$(if $(findstring r6,$(CONFIG_CPU_TYPE)),--with-mips-arch-variant=r6 --with-mips-fpu-mode=fp64)) \
 	$(if $(findstring +neon,$(CONFIG_CPU_TYPE)),--with-arm-fpu=neon) \
 	$(if $(findstring +vfp",$(CONFIG_CPU_TYPE)),--with-arm-fpu=vfp) \
 	$(if $(findstring +vfpv3",$(CONFIG_CPU_TYPE)),--with-arm-fpu=vfpv3-d16) \
