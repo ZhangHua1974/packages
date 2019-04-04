@@ -1,0 +1,12 @@
+--- a/src/lib/types.h
++++ b/src/lib/types.h
+@@ -14,7 +14,9 @@
+ /* Include arch-specific instructions,
+  * when defined. */
+ #if defined(__mips__)
++#if !(defined (__mips_isa_rev) && (__mips_isa_rev >= 6))
+ #include "mult_mips_gcc.h"
++#endif
+ #elif defined(__arm__) && !defined(__thumb__)
+ #include "mult_sarm_gcc.h"
+ #endif
