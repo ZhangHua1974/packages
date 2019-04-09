@@ -43,7 +43,7 @@ define Package/fwknopd
   SUBMENU:=Firewall
   TITLE+= Daemon
   DEPENDS:=+iptables +libfko +!FWKNOPD_NFQ_CAPTURE:libpcap +FWKNOPD_NFQ_CAPTURE:iptables-mod-nfqueue +FWKNOP_GPG:gnupg \
-	+FWKNOPD_NFQ_CAPTURE:libnetfilter-queue +FWKNOPD_NFQ_CAPTURE:libnfnetlink
+	+FWKNOPD_NFQ_CAPTURE:libnetfilter-queue +FWKNOPD_NFQ_CAPTURE:libnfnetlink +libpcap
 endef
 
 define Package/fwknopd/description
