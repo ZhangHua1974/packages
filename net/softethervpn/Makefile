@@ -64,8 +64,13 @@ TARGET_CFLAGS += \
 	$(if $(filter mips mipsel,$(ARCH)),-minterlink-mips16)
 
 # Select 32 or 64 bit Makefile for target build depending on 64bit config symbol
+ifneq ($(filter mips64 mips64el,$(ARCH)),)
 MAKE_FLAGS += \
-	-f src/makefiles/linux_$(if $(CONFIG_ARCH_64BIT),64,32)bit.mak
+	-f src/makefiles/linux_mips_64bit.mak
+else
+MAKE_FLAGS += \
+        -f src/makefiles/linux_$(if $(CONFIG_ARCH_64BIT),64,32)bit.mak
+endif
 
 # Map nonstandard CCFLAGS variable to standard TARGET_CFLAGS
 MAKE_FLAGS += \
