@@ -59,6 +59,7 @@ TS_BASE:=$(dir $(if $(TS_BASE),$(TS_BASE),$(wildcard $(TOOLCHAIN_DIR)/usr/bin/$(
 define Build/Configure
 	(cd $(PKG_BUILD_DIR)/builders/make; \
 		cp linux.mk linux-openwrt-uclibc.mk; \
+		$(SED) '/CFLAGS/i\CFLAGS += -fpermissive' linux-openwrt-uclibc.mk; \
 		$(SED) 's,^TOOLCHAIN_BASE[[:space:]]*=.*,TOOLCHAIN_BASE=$(TS_BASE),' \
 			-e 's,^TOOLCHAIN_PREFIX[[:space:]]*=.*,TOOLCHAIN_PREFIX=$(TARGET_CROSS),' \
 			-e 's,^CCOMPILER[[:space:]]*=.*,CCOMPILER=$(TARGET_CC),' \
