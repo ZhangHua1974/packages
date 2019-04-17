@@ -1,0 +1,91 @@
+--- a/src/lib/mult_mips_gcc.h
++++ b/src/lib/mult_mips_gcc.h
+@@ -1,5 +1,7 @@
+ #include <stdint.h>
+ 
++#if !(defined (__mips_isa_rev) && (__mips_isa_rev >= 6))
++
+ #define mul(a,b) \
+ ({ \
+ 	register int32_t res; \
+@@ -38,6 +40,80 @@ do { \
+ 	dim = (t1 << 1) | ((uint32_t)t2 >> 31); \
+ } while (0)
+ 
++#else
++
++#define mul(a,b) \
++({ \
++	register int32_t res; \
++	__asm__ __volatile__("mul $24, %0, %1": : "r" (a), "r" (b)); \
++	__asm__ __volatile__("muh $25, %0, %1": : "r" (a), "r" (b)); \
++	__asm__ __volatile__("add %0,  $24, $0": "=r" (res)); \
++	res; \
++})
++
++#define mul0(hi,lo,a,b) \
++({ \
++	__asm__ __volatile__("mul  $24, %0, %1" : : "r" (a), "r" (b)); \
++	__asm__ __volatile__("muh  $25, %0, %1" : : "r" (a), "r" (b)); \
++})
++
++#define muladd(hi,lo,a,b) \
++({ \
++	__asm__ __volatile__("mul  $14, %0, %1" : : "r" (a), "r" (b)); \
++	__asm__ __volatile__("muh  $15, %0, %1" : : "r" (a), "r" (b)); \
++	__asm__ __volatile__("addu $25, $25, $15"); \
++	__asm__ __volatile__("addu $24, $24, $14");	\
++	__asm__ __volatile__("sltu $14, $24, $14"); \
++	__asm__ __volatile__("addu $25, $25, $14"); \
++})
++
++#define mulsub(hi,lo,a,b) \
++({ \
++	__asm__ __volatile__("mul  $14, %0, %1" : : "r" (a), "r" (b)); \
++	__asm__ __volatile__("muh  $15, %0, %1" : : "r" (a), "r" (b)); \
++	__asm__ __volatile__("subu $25, $25, $15"); \
++	__asm__ __volatile__("sltu $13, $24, $14"); \
++	__asm__ __volatile__("subu $25, $25, $13"); \
++	__asm__ __volatile__("subu $24, $24, $14"); \
++})	
++
++#define mulz(hi,lo) \
++do { \
++	register int32_t t; \
++	__asm__ __volatile__("addu %0, $25, $0" : "=r" (t)); \
++	(hi) = t; \
++} while (0)
++
++#define cmuls(dre, dim, are, aim, bre, bim) \
++do { \
++	register int32_t t1, t2, tre; \
++	__asm__ __volatile__("mul $24, %0, %1" : : "r" (are), "r" (bre)); \
++	__asm__ __volatile__("muh $25, %0, %1" : : "r" (are), "r" (bre)); \
++	__asm__ __volatile__("mul  $14, %0, %1" : : "r" (aim), "r" (bim)); \
++	__asm__ __volatile__("muh  $15, %0, %1" : : "r" (aim), "r" (bim)); \
++	__asm__ __volatile__("subu $25, $25, $15"); \
++	__asm__ __volatile__("sltu $13, $24, $14"); \
++	__asm__ __volatile__("subu $25, $25, $13"); \
++	__asm__ __volatile__("subu $24, $24, $14"); \
++	__asm__ __volatile__("addu %0, $25, $0" : "=r" (t1)); \
++	__asm__ __volatile__("addu %0, $24, $0" : "=r" (t2)); \
++	tre = (t1 << 1) | ((uint32_t)t2 >> 31); \
++	__asm__ __volatile__("mul $24, %0, %1" : : "r" (are), "r" (bre)); \
++	__asm__ __volatile__("muh $25, %0, %1" : : "r" (are), "r" (bre)); \
++	__asm__ __volatile__("mul  $14, %0, %1" : : "r" (bre), "r" (aim)); \
++	__asm__ __volatile__("muh  $15, %0, %1" : : "r" (bre), "r" (aim)); \
++	__asm__ __volatile__("addu $25, $25, $15"); \
++	__asm__ __volatile__("addu $24, $24, $14");	\
++	__asm__ __volatile__("sltu $14, $24, $14"); \
++	__asm__ __volatile__("addu $25, $25, $14"); \
++	dre = tre; \
++	__asm__ __volatile__("addu %0, $25, $0" : "=r" (t1)); \
++	__asm__ __volatile__("addu %0, $24, $0" : "=r" (t2)); \
++	dim = (t1 << 1) | ((uint32_t)t2 >> 31); \
++} while (0)
++
++#endif
++
+ #if __mips_isa_rev >= 2
+ static inline uint32_t SWAB32(uint32_t x)
+ {
