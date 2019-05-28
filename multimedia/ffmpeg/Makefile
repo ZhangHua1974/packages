@@ -624,15 +624,19 @@ ifeq ($(BUILD_VARIANT),audio-dec)
 	--enable-gpl \
 	\
 	--disable-programs \
-	--disable-avfilter \
 	--disable-postproc \
-	--disable-swresample \
 	--disable-swscale \
 	--disable-everything \
 	$(call FFMPEG_ENABLE,decoder,$(FFMPEG_AUDIO_DECODERS)) \
 	$(call FFMPEG_ENABLE,demuxer,$(FFMPEG_AUDIO_DEMUXERS)) \
 	$(call FFMPEG_ENABLE,protocol,$(FFMPEG_AUDIO_PROTOCOLS)) \
 	--disable-decoder=pcm_bluray,pcm_dvd
+ifneq ($(CONFIG_FFMPEG_CUSTOM_PROGRAMS),y)
+      FFMPEG_CONFIGURE+= \
+	--disable-avfilter \
+	--disable-swresample
+endif
+
 endif
 
 ifeq ($(BUILD_VARIANT),mini)
